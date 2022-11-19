@@ -3,12 +3,15 @@ import FightModal from './FightModal';
 import { Pok } from './types/types'
 
 interface IPokemon {
-  pokemon: Pok
+  pokemon: Pok,
+  oponentsArray: Array<Pok> | undefined,
 }
-const Pokemon = ({ pokemon }: IPokemon): JSX.Element => {
+const Pokemon = ({ oponentsArray, pokemon }: IPokemon): JSX.Element => {
   const [playSound, setPlaySound] = useState<boolean>(false);
   const [audioElement, setAudioElement] = useState<any>(null);
   const [showFightModal, setShowFightModal] = useState<boolean>(false);
+  const [oponent, setOponent] = useState<Pok>();
+
 
   useEffect(() => {
     const x: HTMLAudioElement | any = document.createElement("AUDIO");
@@ -32,6 +35,13 @@ const Pokemon = ({ pokemon }: IPokemon): JSX.Element => {
     }
   }, [playSound, audioElement]);
 
+  useEffect(() => {
+    if (oponentsArray) {
+      const indexOfAiPokemon = Math.floor(Math.random() * 5);
+      setOponent(oponentsArray[indexOfAiPokemon]);
+    }
+  }, [oponentsArray]);
+
   const handleClick = () => {
     setPlaySound(true);
     setShowFightModal(true);
@@ -44,17 +54,19 @@ const Pokemon = ({ pokemon }: IPokemon): JSX.Element => {
 
   return (
     <>
-      <div className="card m-3">
+      <div className="card m-3 justify-content-start">
         <p className="card-text">Price: {pokemon?.price}</p>
         <p className="card-text">{pokemon?.name}</p>
         <img src={pokemon?.sprites.front_default} alt="POKEMON" />
-        <p className="card-text">Attack: {' '}{pokemon?.attack}</p>
-        <p className="card-text">Hp: {' '}{pokemon?.hp}</p>
+        <div className='d-flex justify-content-around'>
+          <p className="card-text fs-6">Attack: {' '}{pokemon?.attack}</p>
+          <p className="card-text fs-6">Hp: {' '}{pokemon?.hp}</p>
+        </div>
         {pokemon?.price !== "free" ?
           <button className="custom-button">Buy it!</button> :
           <button className="custom-button" onClick={handleClick}>Choose ur destiny!</button>}
       </div>
-      <FightModal pokemon={pokemon} showFightModal={showFightModal} handleClose={handleClose}/>
+      <FightModal oponent={oponent} pokemon={pokemon} showFightModal={showFightModal} handleClose={handleClose} />
     </>
   )
 }

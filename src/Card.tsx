@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import Pokemon from './Pokemon';
 import { Pok, Poke } from './types/types';
-import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
-
 
 const Card = (): JSX.Element => {
   const [pokemonsArray, setPokemonsArray] = useState<Array<Pok>>();
@@ -11,10 +10,14 @@ const Card = (): JSX.Element => {
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [sortType, setSortType] = useState('');
+  const [searchPokemon, setSearchPokemon] = useState<string>('');
+  const [filteredPokemonsArray, setFilteredPokemonsArray] = useState<Array<Pok>>();
+  const [searchMessage, setSearchMessage] = useState('');
+  const [oponentsArray, setOponentsArray] = useState<Array<Pok>>();
 
   useEffect(() => {
     setIsLoading(true);
-    fetch(`https://pokeapi.co/api/v2/pokemon/?offset=0&limit=6`)
+    fetch(`https://pokeapi.co/api/v2/pokemon/?offset=0&limit=30`)
       .then((res) => res.json())
       .then((json) => {
         Promise.all(json.results.map((urlPokemon: Poke) => {
@@ -46,7 +49,6 @@ const Card = (): JSX.Element => {
           setIsLoading(false);
         })
       }).catch((err) => {
-        console.error(err);
         setError('Ошибка запроса');
         setIsLoading(false);
       })
@@ -92,44 +94,110 @@ const Card = (): JSX.Element => {
     }
   }, [pokemonsArray, sortType]);
 
+  useEffect(() => {
+    if (pokemonsArray) {
+      const sortArr = pokemonsArray.sort((a, b) => a.priceOrder - b.priceOrder);
+      const mostWantedPokemons = sortArr.slice(sortArr.length - 5);
+      setOponentsArray(mostWantedPokemons);
+    }
+  }, [pokemonsArray]);
+
+  useEffect(() => {
+    if (searchPokemon) {
+      setSearchMessage('Поиск покемона. . .');
+      if (sortedPokemonsArray) {
+        const filterPokemon = sortedPokemonsArray.filter((el) => el
+          .name
+          .includes(searchPokemon.toLowerCase()));
+        if (filterPokemon.length > 0) {
+          setFilteredPokemonsArray(filterPokemon);
+          setTimeout(() => {
+            setSearchMessage('');
+          }, 500);
+        } else {
+          setFilteredPokemonsArray([]);
+
+          setTimeout(() => {
+            setSearchMessage('Такого покемона нет =(');
+          }, 500);
+        }
+      } else {
+        setSearchMessage('Ошибка запроса. . .');
+      }
+    } else {
+      setFilteredPokemonsArray(sortedPokemonsArray);
+    }
+  }, [sortedPokemonsArray, searchPokemon]);
+
   const handleChange = (event: any) => {
     setSortType(event.target.value as string);
   };
+
+  const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchPokemon(event.target.value as string);
+  }
 
   return (
     isLoading ? <>
       <CircularProgress />
       <div>{error}</div>
-    </>
-      :
+    </> :
       <div>
         {!error ?
           <>
-            <Box sx={{ minWidth: 250 }}>
-              <FormControl sx={{ width: 200 }}>
-                <InputLabel id="demo-simple-select-label">Sort</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={sortType}
-                  label="Sort"
-                  onChange={handleChange}
-                >
-                  <MenuItem value={'Price'}>Price</MenuItem>
-                  <MenuItem value={'Name'}>Name</MenuItem>
-                  <MenuItem value={'Attack'}>Attack</MenuItem>
-                  <MenuItem value={'HP'}>HP</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-            {console.log(sortedPokemonsArray)}
-            <div className="d-flex flex-wrap songBlock">
-              {sortedPokemonsArray?.map((pokemon: Pok, idx) => (
-                <Pokemon pokemon={pokemon} key={idx} />
-              ))}
-            </div>
+            <div className='d-flex m-3 justify-content-start'>
+              <TextField
+                label="Имя покемона"
+                id="outlined-nize-small"
+                defaultValue="normal"
+                type="text"
+                onChange={handleSearch}
+                value={searchPokemon}
+                color="secondary"
+                sx={{ color: 'white' }}
+              />
+              <Box sx={{ minWidth: 250 }}>
+                <FormControl sx={{ width: 200 }}>
+                  <InputLabel id="demo-simple-select-label" sx={{ color: 'white' }}>Sort</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={sortType}
+                    label="Sort"
+                    onChange={handleChange}
+                    color="secondary"
+                    sx={{ color: 'white' }}
+                  >
+                    <MenuItem value={'Price'}>Price</MenuItem>
+                    <MenuItem value={'Name'}>Name</MenuItem>
+                    <MenuItem value={'Attack'}>Attack</MenuItem>
+                    <MenuItem value={'HP'}>HP</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+            </div> 
+            {!searchMessage && filteredPokemonsArray ?
+              <div className="d-flex flex-wrap songBlock">
+                {filteredPokemonsArray?.map((pokemon: Pok, idx) => (
+                  <Pokemon oponentsArray={oponentsArray} pokemon={pokemon} key={idx} />
+                ))}
+              </div> :
+              <div>{searchMessage}</div>}
           </>
-          : <div>{error}</div>}
+          :
+          <>
+            <TextField
+              label="Size"
+              id="outlined-size-small"
+              defaultValue="Small"
+              size="small"
+              type="text"
+              onChange={handleSearch}
+              sx={{ color: 'white' }}
+            />
+            <div>{error}</div>
+          </>
+        }
       </div>
   )
 }
