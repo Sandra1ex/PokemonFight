@@ -1,8 +1,10 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import Pokemon from './Pokemon';
 import { Pok, Poke } from './types/types';
-import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import ManualModal from './ManualModal'
 
 const Card = (): JSX.Element => {
   const [pokemonsArray, setPokemonsArray] = useState<Array<Pok>>();
@@ -14,6 +16,7 @@ const Card = (): JSX.Element => {
   const [filteredPokemonsArray, setFilteredPokemonsArray] = useState<Array<Pok>>();
   const [searchMessage, setSearchMessage] = useState('');
   const [oponentsArray, setOponentsArray] = useState<Array<Pok>>();
+  const [showManualModal, setShowManualModal] = useState<boolean>(false);
 
   useEffect(() => {
     setIsLoading(true);
@@ -26,23 +29,35 @@ const Card = (): JSX.Element => {
             .then((pokemonInfo) => {
               const attack = pokemonInfo?.stats['0'].base_stat;
               const hp = pokemonInfo?.stats['1'].base_stat;
-              pokemonInfo.attack = attack;
-              pokemonInfo.hp = hp;
-              pokemonInfo.name = urlPokemon.name;
-              if (attack && hp) {
-                if (attack > 85 || hp > 85) {
-                  pokemonInfo.price = '10$';
-                  pokemonInfo.priceOrder = 3;
-                } else if (attack > 50 || hp > 50) {
-                  pokemonInfo.price = '5$';
-                  pokemonInfo.priceOrder = 2;
-                } else {
-                  pokemonInfo.price = 'free';
-                  pokemonInfo.priceOrder = 1;
-                }
-              }
+              const armor = pokemonInfo?.stats['2'].base_stat;
+              const descriptionURL = pokemonInfo?.species.url;
 
-              return pokemonInfo;
+              return fetch(descriptionURL)
+                .then((res) => res.json())
+                .then((pokemonFullInfo) => {
+                  const description = pokemonFullInfo.flavor_text_entries['6'].flavor_text;
+
+                  pokemonInfo.description = description;
+                  pokemonInfo.attack = attack;
+                  pokemonInfo.hp = hp;
+                  pokemonInfo.armor = armor;
+                  pokemonInfo.name = urlPokemon.name;
+
+                  if (attack && hp) {
+                    if (attack > 85 || hp > 85) {
+                      pokemonInfo.price = '10$';
+                      pokemonInfo.priceOrder = 3;
+                    } else if (attack > 50 || hp > 50) {
+                      pokemonInfo.price = '5$';
+                      pokemonInfo.priceOrder = 2;
+                    } else {
+                      pokemonInfo.price = 'free';
+                      pokemonInfo.priceOrder = 1;
+                    }
+                  }
+
+                  return pokemonInfo;
+                })
             });
         })).then((pokemonInfoArray) => {
           setPokemonsArray(pokemonInfoArray);
@@ -137,6 +152,13 @@ const Card = (): JSX.Element => {
     setSearchPokemon(event.target.value as string);
   }
 
+  const handleManualOpen = () => {
+    setShowManualModal(true);
+  }
+  const handleManualClose = () => {
+    setShowManualModal(false);
+  }
+
   return (
     isLoading ? <>
       <CircularProgress />
@@ -175,7 +197,10 @@ const Card = (): JSX.Element => {
                   </Select>
                 </FormControl>
               </Box>
-            </div> 
+              <Box>
+                <Button startIcon={<MenuBookIcon />} variant="contained" size="large" onClick={handleManualOpen} >Manual</Button>
+              </Box>
+            </div>
             {!searchMessage && filteredPokemonsArray ?
               <div className="d-flex flex-wrap songBlock">
                 {filteredPokemonsArray?.map((pokemon: Pok, idx) => (
@@ -198,6 +223,7 @@ const Card = (): JSX.Element => {
             <div>{error}</div>
           </>
         }
+        <ManualModal showManualModal={showManualModal} handleManualClose={handleManualClose}/>
       </div>
   )
 }

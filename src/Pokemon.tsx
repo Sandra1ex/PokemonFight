@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import FightModal from './FightModal';
 import { Pok } from './types/types'
+import { Typography, Card, CardMedia, CardContent, Button, CardActions, Box, Stack, Tooltip } from '@mui/material';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import SportsMmaIcon from '@mui/icons-material/SportsMma';
+import './index.css';
 
 interface IPokemon {
   pokemon: Pok,
@@ -12,6 +16,7 @@ const Pokemon = ({ oponentsArray, pokemon }: IPokemon): JSX.Element => {
   const [showFightModal, setShowFightModal] = useState<boolean>(false);
   const [oponent, setOponent] = useState<Pok>();
 
+  // console.log(pokemon.description);
 
   useEffect(() => {
     const x: HTMLAudioElement | any = document.createElement("AUDIO");
@@ -54,18 +59,51 @@ const Pokemon = ({ oponentsArray, pokemon }: IPokemon): JSX.Element => {
 
   return (
     <>
-      <div className="card m-3 justify-content-start">
-        <p className="card-text">Price: {pokemon?.price}</p>
-        <p className="card-text">{pokemon?.name}</p>
-        <img src={pokemon?.sprites.front_default} alt="POKEMON" />
-        <div className='d-flex justify-content-around'>
-          <p className="card-text fs-6">Attack: {' '}{pokemon?.attack}</p>
-          <p className="card-text fs-6">Hp: {' '}{pokemon?.hp}</p>
+      <Card className='cardStyle' sx={{ maxWidth: 345, margin: '10px'}}>
+        <div style={{display: 'flex', flexDirection: 'column' }}>
+          <CardMedia
+            component="img"
+            alt="green iguana"
+          
+            // height="140"
+            image={pokemon?.sprites.front_default}
+            sx={{maxHeight: '200px'}}
+          />
+          <div style={{position: 'relative', bottom: '200px', left: '182px', backgroundColor: '#1976d2', width: '52px', padding: '2px 5px', borderRadius: '3px 3px 3px 5px' }}>
+            <Typography variant="h6" sx={{color: 'white'}}>
+              <strong>{pokemon?.price === 'free' ? 'Free' : pokemon?.price}</strong>
+            </Typography>
+          </div>
         </div>
-        {pokemon?.price !== "free" ?
-          <button className="custom-button">Buy it!</button> :
-          <button className="custom-button" onClick={handleClick}>Choose ur destiny!</button>}
-      </div>
+        <CardContent sx={{marginTop: '-30px'}}>
+          <Typography gutterBottom variant="h5" component="div">
+            {pokemon?.name.toUpperCase()}
+          </Typography>
+          <Tooltip title={pokemon?.description.replace('', ' ')} placement="top">
+            <Typography variant="body2" color="text.secondary" className='truncate-text' >
+              {pokemon?.description.replace('', ' ')}
+            </Typography>
+          </Tooltip>
+          <Stack direction='row' sx={{ justifyContent: 'space-evenly' }}>
+            <Box>
+              ⚔️  {pokemon?.attack}
+            </Box>
+            <Box>
+              🛡️  {pokemon?.armor}
+            </Box>
+            <Box>
+              ❤️  {pokemon?.hp}
+            </Box>
+          </Stack>
+        </CardContent>
+        <CardActions>
+          {pokemon?.price !== "free" ?
+            <Button fullWidth startIcon={<AddShoppingCartIcon />} variant="contained" size="small" >Buy it!</Button> :
+            <Button size="small" fullWidth onClick={handleClick} variant="contained" endIcon={<SportsMmaIcon />}>
+              Choose ur destiny!
+            </Button>}
+        </CardActions>
+      </Card>
       <FightModal oponent={oponent} pokemon={pokemon} showFightModal={showFightModal} handleClose={handleClose} />
     </>
   )

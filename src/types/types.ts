@@ -15,4 +15,6 @@ export interface Pok {
   attack: number,
   hp: number,
   name: string,
+  armor: number,
+  description: string,
 }
