@@ -5,6 +5,7 @@ import { Typography, Card, CardMedia, CardContent, Button, CardActions, Box, Sta
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import SportsMmaIcon from '@mui/icons-material/SportsMma';
 import './index.css';
+import BuyModal from './BuyModal';
 
 interface IPokemon {
   pokemon: Pok,
@@ -15,6 +16,8 @@ const Pokemon = ({ oponentsArray, pokemon }: IPokemon): JSX.Element => {
   const [audioElement, setAudioElement] = useState<any>(null);
   const [showFightModal, setShowFightModal] = useState<boolean>(false);
   const [oponent, setOponent] = useState<Pok>();
+  const [showModalWithBuyPokemon, setShowModalWithBuyPokemon] = useState<boolean>(false);
+
 
   // console.log(pokemon.description);
 
@@ -57,25 +60,32 @@ const Pokemon = ({ oponentsArray, pokemon }: IPokemon): JSX.Element => {
     setPlaySound(false);
   }
 
+  const handleBuyOpen = () => {
+    setShowModalWithBuyPokemon(true);
+  }
+  const handleBuyClose = () => {
+    setShowModalWithBuyPokemon(false);
+  }
+
   return (
     <>
-      <Card className='cardStyle' sx={{ maxWidth: 345, margin: '10px'}}>
-        <div style={{display: 'flex', flexDirection: 'column' }}>
+      <Card className='cardStyle' sx={{ maxWidth: 345, margin: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           <CardMedia
             component="img"
             alt="green iguana"
-          
+
             // height="140"
             image={pokemon?.sprites.front_default}
-            sx={{maxHeight: '200px'}}
+            sx={{ maxHeight: '200px' }}
           />
-          <div style={{position: 'relative', bottom: '200px', left: '182px', backgroundColor: '#1976d2', width: '52px', padding: '2px 5px', borderRadius: '3px 3px 3px 5px' }}>
-            <Typography variant="h6" sx={{color: 'white'}}>
+          <div style={{ position: 'relative', bottom: '200px', left: '182px', backgroundColor: '#1976d2', width: '52px', padding: '2px 5px', borderRadius: '3px 3px 3px 5px' }}>
+            <Typography variant="h6" sx={{ color: 'white' }}>
               <strong>{pokemon?.price === 'free' ? 'Free' : pokemon?.price}</strong>
             </Typography>
           </div>
         </div>
-        <CardContent sx={{marginTop: '-30px'}}>
+        <CardContent sx={{ marginTop: '-30px' }}>
           <Typography gutterBottom variant="h5" component="div">
             {pokemon?.name.toUpperCase()}
           </Typography>
@@ -98,13 +108,14 @@ const Pokemon = ({ oponentsArray, pokemon }: IPokemon): JSX.Element => {
         </CardContent>
         <CardActions>
           {pokemon?.price !== "free" ?
-            <Button fullWidth startIcon={<AddShoppingCartIcon />} variant="contained" size="small" >Buy it!</Button> :
+            <Button fullWidth startIcon={<AddShoppingCartIcon />} variant="contained" size="small" onClick={handleBuyOpen} >Buy it!</Button> :
             <Button size="small" fullWidth onClick={handleClick} variant="contained" endIcon={<SportsMmaIcon />}>
               Choose ur destiny!
             </Button>}
         </CardActions>
       </Card>
       <FightModal oponent={oponent} pokemon={pokemon} showFightModal={showFightModal} handleClose={handleClose} />
+      <BuyModal handleBuyClose={handleBuyClose} showModalWithBuyPokemon={showModalWithBuyPokemon} />
     </>
   )
 }

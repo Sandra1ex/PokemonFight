@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Modal, Typography, Stack } from '@mui/material';
+import { Box, Modal, Typography, Stack, Tooltip } from '@mui/material';
 import { Pok } from './types/types';
 import { borderStyles, style } from './styles';
 import './borderStyles.css';
+import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
+
 
 interface IFightModal {
   pokemon: Pok | undefined,
@@ -220,19 +222,25 @@ function FightModal({ oponent, pokemon, showFightModal, handleClose }: IFightMod
           {/* Мой покемон */}
           <Stack direction='row'>
             <Stack spacing={0} direction="column" sx={borderStyles} className="ramka-3">
-              <img src={pokemon?.sprites.front_default} alt="POKEMON" width='200' />
+              <div style={{display: 'flex', flexDirection: 'column' }}>
+                <Tooltip title={pokemon?.description.replace('', ' ')} placement='top'>
+                  <QuestionMarkIcon sx={{position: 'relative', top: '5px', left: '5px'}}/>
+                </Tooltip>
+                <img src={pokemon?.sprites.front_default} alt="POKEMON" width='200' />
+
+              </div>
               <Stack direction='column'>
                 <Typography variant="h6" sx={{ mt: 2, width: 'fit-content', margin: 'auto', color: '#444a4e' }}>
                   {pokemon.name.toUpperCase()}
                 </Typography>
                 <Stack direction='row' sx={{ width: 'fit-content', margin: 'auto', mb: 1, mt: 1 }} spacing={1}>
-                  <Box sx={{color: '#444a4e'}}>
+                  <Box sx={{ color: '#444a4e' }}>
                     ⚔️  {pokemon.attack}
                   </Box>
-                  <Box sx={{color: '#444a4e'}}>
+                  <Box sx={{ color: '#444a4e' }}>
                     🛡️ {pokemon.armor}
                   </Box>
-                  <Box sx={{color: '#444a4e'}}>
+                  <Box sx={{ color: '#444a4e' }}>
                     ❤️  {currentOwnHp}
                   </Box>
                 </Stack>
@@ -259,6 +267,7 @@ function FightModal({ oponent, pokemon, showFightModal, handleClose }: IFightMod
               </button>
             </Stack>
           </Stack>
+          {/* Цетральная арена */}
           {!totalWinner ? !isFighting ?
             <Stack direction='column' >
               <div className='align-self-center' style={{ width: '100px' }}>
@@ -267,7 +276,6 @@ function FightModal({ oponent, pokemon, showFightModal, handleClose }: IFightMod
               <div className='align-self-center' style={{ position: 'relative', top: '50px' }}>
                 <button type="button" className={`btn btn-danger`} onClick={fightClick} style={{ cursor: 'pointer' }}>FIGHT!</button>
               </div>
-              {/* Цетральная арена */}
             </Stack> :
             fightError ?
               <Stack direction='column' >
@@ -349,19 +357,24 @@ function FightModal({ oponent, pokemon, showFightModal, handleClose }: IFightMod
             </Stack>
 
             <Stack spacing={0} direction="column" sx={borderStyles} className="ramka-3">
-              <img src={oponent ? oponent?.sprites.front_default : pokemon?.sprites.front_default} alt="POKEMON" width='200' />
+              <div style={{display: 'flex', flexDirection: 'column' }}>
+                <Tooltip title={oponent?.description.replace('', ' ')} placement='top' >
+                  <QuestionMarkIcon sx={{position: 'relative', top: '5px', left: '170px'}}/>
+                </Tooltip>
+                <img src={oponent ? oponent?.sprites.front_default : pokemon?.sprites.front_default} alt="POKEMON" width='200' />
+              </div>
               <Stack direction='column'>
                 <Typography variant="h6" sx={{ mt: 2, width: 'fit-content', margin: 'auto', color: '#444a4e' }}>
                   {oponent ? oponent.name.toUpperCase() : pokemon.name.toUpperCase()}
                 </Typography>
                 <Stack direction='row' sx={{ width: 'fit-content', margin: 'auto', mb: 1, mt: 1 }} spacing={1}>
-                  <Box sx={{color: '#444a4e'}}>
+                  <Box sx={{ color: '#444a4e' }}>
                     ⚔️  {oponent ? oponent.attack : pokemon.attack}
                   </Box>
-                  <Box sx={{color: '#444a4e'}}>
+                  <Box sx={{ color: '#444a4e' }}>
                     🛡️ {oponent ? oponent.armor : pokemon.armor}
                   </Box>
-                  <Box sx={{color: '#444a4e'}}>
+                  <Box sx={{ color: '#444a4e' }}>
                     ❤️  {currentAiHp}
                   </Box>
                 </Stack>
